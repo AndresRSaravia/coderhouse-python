@@ -1,0 +1,14 @@
+{% extends "blogs_django/base.html" %}
+
+{% block content %}
+<p>Tags</p>
+<ul>
+	{% for tag in tags %}
+		<li>
+			<a href="{% url 'blogs_django:tag' tag.id %}">{{ tag }}</a>
+		</li>
+	{% empty %}
+		<li>No hay tags</li>
+	{% endfor %}
+</ul>
+{% endblock content %}

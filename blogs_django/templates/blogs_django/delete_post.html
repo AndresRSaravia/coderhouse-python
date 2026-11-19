@@ -1,0 +1,6 @@
+<form action="{% url 'blogs_django:delete_post' post.id %}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este post?');">
+    {% csrf_token %}
+    <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-medium rounded-lg transition-colors shadow-md">
+        Eliminar Post
+    </button>
+</form>

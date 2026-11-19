@@ -1,0 +1,40 @@
+{% extends "blogs_django/base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg">
+    <h1 class="text-3xl font-bold mb-4 text-indigo-400">{{ post.title }}</h1>
+    
+    <div class="text-sm text-gray-400 mb-6">
+        Por <span class="text-gray-200 font-medium">{{ post.author }}</span> • 
+        Creado el {{ post.created_at|date:"d/m/Y H:i" }} 
+        {% if post.modified_at != post.created_at %}
+            (Modificado: {{ post.modified_at|date:"d/m/Y H:i" }})
+        {% endif %}
+        • ❤️ {{ post.likes }} likes
+    </div>
+
+    <div class="text-gray-200 space-y-4 mb-8 leading-relaxed whitespace-pre-line">
+        {{ post.content }}
+    </div>
+
+    <!-- Botones de Acción (Editar y Eliminar) -->
+    <div class="border-t border-gray-800 pt-4 flex items-center justify-between">
+        <div class="flex space-x-3">
+            <a href="{% url 'blogs_django:edit_post' post.id %}" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition-colors shadow-md">
+                Editar Post
+            </a>
+            <a href="{% url 'blogs_django:posts' %}" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition-colors">
+                Volver a la lista
+            </a>
+        </div>
+
+        <!-- Formulario independiente para eliminar -->
+        <form action="{% url 'blogs_django:delete_post' post.id %}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este post permanentemente?');">
+            {% csrf_token %}
+            <button type="submit" class="px-4 py-2 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-600/30 font-medium rounded-lg transition-colors">
+                Eliminar
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock content %}

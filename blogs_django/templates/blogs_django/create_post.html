@@ -1,0 +1,36 @@
+{% extends "blogs_django/base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg">
+    <h1 class="text-2xl font-bold mb-6 text-indigo-400">Crear Nuevo Post</h1>
+
+    <form method="POST" class="space-y-5">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="text-sm text-red-400">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        {% for field in form %}
+            <div class="flex flex-col space-y-1">
+                <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-300">
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                {% for error in field.errors %}
+                    <span class="text-xs text-red-400">{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <div class="pt-4 flex space-x-3">
+            <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-4 rounded-lg transition-colors shadow-md">
+                Guardar Post
+            </button>
+            <a href="{% url 'blogs_django:posts' %}" class="px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition-colors text-center">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock content %}
