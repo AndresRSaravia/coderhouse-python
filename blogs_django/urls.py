@@ -4,6 +4,7 @@ from . import views
 app_name = 'blogs_django'
 urlpatterns = [
     path('', views.index, name='index'),
+    path('search/', views.search, name='search'),
     # CRUD Tags
     path('tags/', views.tags, name='tags'),
     path('tags/<int:tag_id>/', views.tag, name='tag'),

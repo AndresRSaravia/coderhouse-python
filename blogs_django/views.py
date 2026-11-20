@@ -1,25 +1,59 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Q
+from functools import wraps
 from .models import Post, Tag
 from .forms import PostForm, TagForm
+
+def superuser_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated or not request.user.is_superuser:
+            messages.error(request, "Solo los administradores pueden gestionar etiquetas.")
+            return redirect('blogs_django:tags')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 def index(request):
     return render(request, 'blogs_django/index.html')
 
-# --- CRUD TAGS ---
+def search(request):
+    query = request.GET.get('q', '').strip()
+    posts = Post.objects.none()
+    tags = Tag.objects.none()
+
+    if query:
+        posts = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query) |
+            Q(author__username__icontains=query)
+        ).distinct().order_by('-created_at')
+
+        tags = Tag.objects.filter(name__icontains=query).order_by('name')
+
+    return render(request, 'blogs_django/search.html', {
+        'query': query,
+        'posts': posts,
+        'tags': tags,
+    })
+
+# --- CRUD TAGS (Exclusivo Superusuarios) ---
 
 def tags(request):
+    query = request.GET.get('q', '').strip()
     tags = Tag.objects.all().order_by('name')
-    return render(request, 'blogs_django/tags.html', {'tags': tags})
-
+    if query:
+        tags = tags.filter(name__icontains=query)
+    return render(request, 'blogs_django/tags.html', {'tags': tags, 'query': query})
 
 def tag(request, tag_id):
     tag = get_object_or_404(Tag, id=tag_id)
     posts = tag.posts.order_by('-created_at')
     return render(request, 'blogs_django/tag.html', {'tag': tag, 'posts': posts})
 
-@login_required
+@superuser_required
 def create_tag(request):
     if request.method == 'POST':
         form = TagForm(request.POST)
@@ -31,7 +65,7 @@ def create_tag(request):
         form = TagForm()
     return render(request, 'blogs_django/create_tag.html', {'form': form})
 
-@login_required
+@superuser_required
 def edit_tag(request, tag_id):
     tag = get_object_or_404(Tag, id=tag_id)
     if request.method == 'POST':
@@ -44,7 +78,7 @@ def edit_tag(request, tag_id):
         form = TagForm(instance=tag)
     return render(request, 'blogs_django/edit_tag.html', {'form': form, 'tag': tag})
 
-@login_required
+@superuser_required
 def delete_tag(request, tag_id):
     tag = get_object_or_404(Tag, id=tag_id)
     if request.method == 'POST':
@@ -56,8 +90,15 @@ def delete_tag(request, tag_id):
 # --- CRUD POSTS ---
 
 def posts(request):
+    query = request.GET.get('q', '').strip()
     posts = Post.objects.all().order_by('-created_at')
-    return render(request, 'blogs_django/posts.html', {'posts': posts})
+    if query:
+        posts = posts.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct()
+    return render(request, 'blogs_django/posts.html', {'posts': posts, 'query': query})
 
 def post(request, post_id):
     post = get_object_or_404(Post, id=post_id)

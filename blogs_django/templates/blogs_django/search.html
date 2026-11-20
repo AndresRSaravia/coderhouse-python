@@ -1,0 +1,51 @@
+{% extends "blogs_django/base.html" %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-8">
+    <div>
+        <h1 class="text-2xl font-bold text-indigo-400">
+            Resultados de búsqueda{% if query %}: "{{ query }}"{% endif %}
+        </h1>
+    </div>
+
+    {% if not query %}
+        <p class="text-gray-400">Escribe una palabra clave en el buscador para encontrar publicaciones o etiquetas.</p>
+    {% else %}
+        <!-- TAGS ENCONTRADOS -->
+        <section>
+            <h2 class="text-lg font-semibold text-gray-200 mb-3">Etiquetas ({{ tags.count }})</h2>
+            {% if tags %}
+                <div class="flex flex-wrap gap-2">
+                    {% for tag in tags %}
+                        <a href="{% url 'blogs_django:tag' tag.id %}" class="px-3 py-1.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800 hover:bg-indigo-900 text-sm">
+                            #{{ tag.name }} <span class="text-xs text-gray-400">({{ tag.posts.count }})</span>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-sm text-gray-500">No se encontraron etiquetas para "{{ query }}".</p>
+            {% endif %}
+        </section>
+
+        <!-- POSTS ENCONTRADOS -->
+        <section>
+            <h2 class="text-lg font-semibold text-gray-200 mb-3">Publicaciones ({{ posts.count }})</h2>
+            <div class="space-y-3">
+                {% for post in posts %}
+                    <div class="p-4 bg-gray-900 border border-gray-800 rounded-xl">
+                        <a href="{% url 'blogs_django:post' post.id %}" class="text-lg font-semibold text-indigo-400 hover:underline">
+                            {{ post.title }}
+                        </a>
+                        <p class="text-xs text-gray-400 mt-1">
+                            Por {{ post.author }} • {{ post.created_at|date:"d/m/Y H:i" }}
+                        </p>
+                        <p class="text-sm text-gray-300 mt-2 line-clamp-2">{{ post.content|truncatewords:25 }}</p>
+                    </div>
+                {% empty %}
+                    <p class="text-sm text-gray-500">No se encontraron publicaciones para "{{ query }}".</p>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+</div>
+{% endblock content %}

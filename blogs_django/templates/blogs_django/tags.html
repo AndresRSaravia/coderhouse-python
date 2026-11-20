@@ -4,12 +4,21 @@
 <div class="max-w-2xl mx-auto">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-indigo-400">Etiquetas (Tags)</h1>
-        {% if user.is_authenticated %}
+        {% if user.is_superuser %}
             <a href="{% url 'blogs_django:create_tag' %}" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors">
                 + Nueva Etiqueta
             </a>
         {% endif %}
     </div>
+
+    <form method="GET" class="mb-6 flex gap-2">
+        <input type="text" name="q" value="{{ query }}" placeholder="Filtrar etiquetas..."
+               class="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-sm text-gray-100 focus:outline-none focus:border-indigo-500">
+        <button type="submit" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm rounded-lg">Filtrar</button>
+        {% if query %}
+            <a href="{% url 'blogs_django:tags' %}" class="px-4 py-2 bg-gray-900 border border-gray-700 text-gray-400 text-sm rounded-lg">Limpiar</a>
+        {% endif %}
+    </form>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {% for tag in tags %}
@@ -17,7 +26,7 @@
                 <a href="{% url 'blogs_django:tag' tag.id %}" class="text-lg font-medium text-gray-200 hover:text-indigo-400">
                     #{{ tag.name }} <span class="text-xs text-gray-500">({{ tag.posts.count }})</span>
                 </a>
-                {% if user.is_authenticated %}
+                {% if user.is_superuser %}
                     <div class="flex items-center space-x-2 text-xs">
                         <a href="{% url 'blogs_django:edit_tag' tag.id %}" class="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded">Editar</a>
                         <form action="{% url 'blogs_django:delete_tag' tag.id %}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar la etiqueta #{{ tag.name }}?');">
@@ -28,7 +37,7 @@
                 {% endif %}
             </div>
         {% empty %}
-            <p class="text-gray-500">No hay etiquetas creadas todavía.</p>
+            <p class="text-gray-500">No hay etiquetas disponibles.</p>
         {% endfor %}
     </div>
 </div>
