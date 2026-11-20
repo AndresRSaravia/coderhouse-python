@@ -4,7 +4,7 @@
 <div class="max-w-2xl mx-auto bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg">
     <h1 class="text-2xl font-bold mb-6 text-indigo-400">Crear Nuevo Post</h1>
 
-    <form method="POST" class="space-y-5">
+    <form method="POST" enctype="multipart/form-data" class="space-y-5">
         {% csrf_token %}
 
         {% if form.non_field_errors %}

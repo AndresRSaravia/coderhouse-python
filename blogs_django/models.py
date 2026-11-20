@@ -1,6 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User # Recomendado para el campo author
-from django.conf import settings
+from django.contrib.auth.models import User
 
 class Tag(models.Model):
 	"""Representa una etiqueta para categorizar los posts."""
@@ -19,16 +18,18 @@ class Post(models.Model):
 	title = models.CharField(max_length=200)
 	author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
 	content = models.TextField()
+	# image = models.ImageField(upload_to='posts/', blank=True, null=True) no funciona pillow
+	image = models.FileField(upload_to='posts/', blank=True, null=True)
 	likes = models.PositiveIntegerField(default=0)
-	tags = models.ManyToManyField(Tag, related_name='posts')
+	tags = models.ManyToManyField(Tag, related_name='posts', blank=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 	modified_at = models.DateTimeField(auto_now=True)
-	# Opciones para el campo 'type' (estado del post)
 	type = models.CharField(
 		max_length=20,
 		choices=POST_TYPES,
 		default='borrador',
 	)
+
 	def __str__(self):
-		return f"{self.title} - {self.author} ({self.created_at})"
+		return f"{self.title} - {self.author} ({self.created_at:%d/%m/%Y})"
 

@@ -129,6 +129,13 @@ MAILERS = {
     },
 }
 
+# Static files
+STATIC_URL = 'static/'
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'posts'
-LOGOUT_REDIRECT_URL = 'posts'
+LOGIN_REDIRECT_URL = 'blogs_django:posts'
+LOGOUT_REDIRECT_URL = 'blogs_django:posts'

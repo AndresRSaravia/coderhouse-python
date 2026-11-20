@@ -1,14 +1,35 @@
 {% extends "blogs_django/base.html" %}
 
 {% block content %}
-<p>Tags</p>
-<ul>
-	{% for tag in tags %}
-		<li>
-			<a href="{% url 'blogs_django:tag' tag.id %}">{{ tag }}</a>
-		</li>
-	{% empty %}
-		<li>No hay tags</li>
-	{% endfor %}
-</ul>
+<div class="max-w-2xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-indigo-400">Etiquetas (Tags)</h1>
+        {% if user.is_authenticated %}
+            <a href="{% url 'blogs_django:create_tag' %}" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors">
+                + Nueva Etiqueta
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {% for tag in tags %}
+            <div class="p-4 bg-gray-900 border border-gray-800 rounded-xl flex justify-between items-center">
+                <a href="{% url 'blogs_django:tag' tag.id %}" class="text-lg font-medium text-gray-200 hover:text-indigo-400">
+                    #{{ tag.name }} <span class="text-xs text-gray-500">({{ tag.posts.count }})</span>
+                </a>
+                {% if user.is_authenticated %}
+                    <div class="flex items-center space-x-2 text-xs">
+                        <a href="{% url 'blogs_django:edit_tag' tag.id %}" class="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded">Editar</a>
+                        <form action="{% url 'blogs_django:delete_tag' tag.id %}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar la etiqueta #{{ tag.name }}?');">
+                            {% csrf_token %}
+                            <button type="submit" class="px-2.5 py-1 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white rounded">Eliminar</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p class="text-gray-500">No hay etiquetas creadas todavía.</p>
+        {% endfor %}
+    </div>
+</div>
 {% endblock content %}

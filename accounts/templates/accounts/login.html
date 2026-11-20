@@ -1,11 +1,23 @@
 {% extends "blogs_django/base.html" %}
-{% block title %} Ingresar {% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6 text-indigo-400">Ingresar</h1>
-{% if next %}<p>Necesitas iniciar sesión para ver esta página</p>{% endif %}
-<form method="POST" class="space-y-5">
-	{% csrf_token %}
-    {{ form.as_p }}
-	<button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-4 rounded-lg transition-colors shadow-md">Ingresar</button>
-</form>
+<div class="max-w-md mx-auto bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg mt-8">
+    <h1 class="text-2xl font-bold mb-6 text-indigo-400">Ingresar</h1>
+    {% if next %}<p class="text-sm text-amber-400 mb-4">Necesitas iniciar sesión para ver esta página.</p>{% endif %}
+    <form method="POST" class="space-y-5">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="flex flex-col space-y-1">
+                <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-300">{{ field.label }}</label>
+                <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+                       class="w-full px-3 py-2 bg-gray-950 border border-gray-700 rounded-lg text-gray-100 focus:outline-none focus:border-indigo-500" required>
+                {% for error in field.errors %}<span class="text-xs text-red-400">{{ error }}</span>{% endfor %}
+            </div>
+        {% endfor %}
+        {% if form.non_field_errors %}<div class="text-sm text-red-400">{{ form.non_field_errors }}</div>{% endif %}
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-4 rounded-lg transition-colors shadow-md">
+            Ingresar
+        </button>
+    </form>
+    <p class="mt-4 text-sm text-gray-400">¿No tienes cuenta? <a href="{% url 'register' %}" class="text-indigo-400 hover:underline">Regístrate</a></p>
+</div>
 {% endblock content %}

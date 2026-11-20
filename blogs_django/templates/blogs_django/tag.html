@@ -1,15 +1,36 @@
 {% extends "blogs_django/base.html" %}
 
 {% block content %}
-<p>Tag: {{ tag }}</p>
-<p>Posts</p>
-<ul>
-	{% for post in posts %}
-		<li>
-			<a href="{% url 'blogs_django:post' post.id %}">{{ post }}</a>
-		</li>
-	{% empty %}
-		<li>No hay posts</li>
-	{% endfor %}
-</ul>
+<div class="max-w-2xl mx-auto bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg">
+    <div class="flex justify-between items-center border-b border-gray-800 pb-4 mb-6">
+        <h1 class="text-2xl font-bold text-indigo-400">Tag: #{{ tag.name }}</h1>
+        {% if user.is_authenticated %}
+            <div class="flex space-x-2">
+                <a href="{% url 'blogs_django:edit_tag' tag.id %}" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm rounded-lg">
+                    Editar Tag
+                </a>
+                <form action="{% url 'blogs_django:delete_tag' tag.id %}" method="POST" onsubmit="return confirm('¿Eliminar este tag permanentemente?');">
+                    {% csrf_token %}
+                    <button type="submit" class="px-3 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-600/30 text-sm rounded-lg">
+                        Eliminar
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+    <h2 class="text-lg font-semibold text-gray-300 mb-3">Posts con esta etiqueta</h2>
+    <ul class="space-y-2">
+        {% for post in posts %}
+            <li class="p-3 bg-gray-950 border border-gray-800 rounded-lg">
+                <a href="{% url 'blogs_django:post' post.id %}" class="text-gray-200 hover:text-indigo-400 font-medium">
+                    {{ post.title }}
+                </a>
+                <span class="text-xs text-gray-500 block">Por {{ post.author }} • {{ post.created_at|date:"d/m/Y" }}</span>
+            </li>
+        {% empty %}
+            <li class="text-gray-500 text-sm">No hay posts asociados a este tag.</li>
+        {% endfor %}
+    </ul>
+</div>
 {% endblock content %}

@@ -23,10 +23,11 @@ class TagForm(forms.ModelForm):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'type', 'tags']
+        fields = ['title', 'content', 'image', 'type', 'tags']
         labels = {
             'title': 'Título',
             'content': 'Contenido',
+            'image': 'Imagen (opcional, máximo 1)',
             'type': 'Estado',
             'tags': 'Tags (puedes seleccionar varios)',
         }
@@ -39,6 +40,10 @@ class PostForm(forms.ModelForm):
                 'class': INPUT_CLASSES,
                 'rows': 5,
                 'placeholder': 'Escribe el contenido aquí...',
+            }),
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:text-white hover:file:bg-indigo-500',
+                'accept': 'image/*',
             }),
             'type': forms.Select(attrs={
                 'class': INPUT_CLASSES,

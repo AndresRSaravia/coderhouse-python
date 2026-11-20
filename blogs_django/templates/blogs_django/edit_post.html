@@ -5,7 +5,7 @@
     <h1 class="text-2xl font-bold mb-6 text-indigo-400">Editar Post: {{ post.title }}</h1>
 
     <!-- Formulario Principal de Edición -->
-    <form method="POST" class="space-y-5">
+    <form method="POST" enctype="multipart/form-data" class="space-y-5">
         {% csrf_token %}
 
         {% if form.non_field_errors %}
