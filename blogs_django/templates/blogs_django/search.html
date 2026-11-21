@@ -18,7 +18,7 @@
                 <div class="flex flex-wrap gap-2">
                     {% for tag in tags %}
                         <a href="{% url 'blogs_django:tag' tag.id %}" class="px-3 py-1.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800 hover:bg-indigo-900 text-sm">
-                            #{{ tag.name }} <span class="text-xs text-gray-400">({{ tag.posts.count }})</span>
+                            #{{ tag.name }} <span class="text-xs text-gray-400">({{ tag.published_posts_count }})</span>
                         </a>
                     {% endfor %}
                 </div>

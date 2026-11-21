@@ -39,9 +39,12 @@ def search(request):
             Q(author__username__icontains=query)
         ).distinct().order_by('-created_at')
 
-        tags = Tag.objects.filter(name__icontains=query).annotate(
-            published_posts_count=Count('posts', filter=Q(posts__type='publicado'))
-        ).order_by('name')
+        tags = Tag.objects.filter(
+            name__icontains=query,
+            posts__type='publicado',
+        ).annotate(
+            published_posts_count=Count('posts', filter=Q(posts__type='publicado'), distinct=True)
+        ).distinct().order_by('name')
 
     return render(request, 'blogs_django/search.html', {
         'query': query,
