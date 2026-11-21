@@ -3,7 +3,11 @@
 {% block content %}
 <div class="max-w-2xl mx-auto bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg">
     <h1 class="text-3xl font-bold mb-3 text-indigo-400">{{ post.title }}</h1>
-    
+    {% if post.type != 'publicado' %}
+    <span class="inline-block mb-3 px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full {% if post.type == 'borrador' %}bg-amber-950 text-amber-300 border border-amber-700{% else %}bg-gray-800 text-gray-300 border border-gray-600{% endif %}">
+        {{ post.get_type_display }} (Solo visible para ti)
+    </span>
+	{% endif %}
     <div class="text-sm text-gray-400 mb-4 flex items-center space-x-2">
         {% if post.author.profile.avatar %}
             <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}" class="w-6 h-6 rounded-full object-cover">

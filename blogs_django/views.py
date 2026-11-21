@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Count
 from functools import wraps
 from .models import Post, Tag
 from .forms import PostForm, TagForm
@@ -16,7 +16,15 @@ def superuser_required(view_func):
     return _wrapped_view
 
 def index(request):
-    return render(request, 'blogs_django/index.html')
+    recent_posts = Post.objects.filter(type='publicado').order_by('-created_at')[:4]
+    popular_tags = Tag.objects.annotate(
+        published_posts_count=Count('posts', filter=Q(posts__type='publicado'))
+    ).filter(published_posts_count__gt=0).order_by('-published_posts_count', 'name')[:8]
+
+    return render(request, 'blogs_django/index.html', {
+        'recent_posts': recent_posts,
+        'popular_tags': popular_tags,
+    })
 
 def search(request):
     query = request.GET.get('q', '').strip()
@@ -24,14 +32,16 @@ def search(request):
     tags = Tag.objects.none()
 
     if query:
-        posts = Post.objects.filter(
+        posts = Post.objects.filter(type='publicado').filter(
             Q(title__icontains=query) |
             Q(content__icontains=query) |
             Q(tags__name__icontains=query) |
             Q(author__username__icontains=query)
         ).distinct().order_by('-created_at')
 
-        tags = Tag.objects.filter(name__icontains=query).order_by('name')
+        tags = Tag.objects.filter(name__icontains=query).annotate(
+            published_posts_count=Count('posts', filter=Q(posts__type='publicado'))
+        ).order_by('name')
 
     return render(request, 'blogs_django/search.html', {
         'query': query,
@@ -43,14 +53,16 @@ def search(request):
 
 def tags(request):
     query = request.GET.get('q', '').strip()
-    tags = Tag.objects.all().order_by('name')
+    tags = Tag.objects.annotate(
+        published_posts_count=Count('posts', filter=Q(posts__type='publicado'))
+    ).order_by('name')
     if query:
         tags = tags.filter(name__icontains=query)
     return render(request, 'blogs_django/tags.html', {'tags': tags, 'query': query})
 
 def tag(request, tag_id):
     tag = get_object_or_404(Tag, id=tag_id)
-    posts = tag.posts.order_by('-created_at')
+    posts = tag.posts.filter(type='publicado').order_by('-created_at')
     return render(request, 'blogs_django/tag.html', {'tag': tag, 'posts': posts})
 
 @superuser_required
@@ -91,7 +103,7 @@ def delete_tag(request, tag_id):
 
 def posts(request):
     query = request.GET.get('q', '').strip()
-    posts = Post.objects.all().order_by('-created_at')
+    posts = Post.objects.filter(type='publicado').order_by('-created_at')
     if query:
         posts = posts.filter(
             Q(title__icontains=query) |
@@ -100,8 +112,33 @@ def posts(request):
         ).distinct()
     return render(request, 'blogs_django/posts.html', {'posts': posts, 'query': query})
 
+@login_required
+def my_posts(request):
+    estado = request.GET.get('estado', 'borrador')
+    estados_validos = {'borrador', 'archivado', 'publicado'}
+    if estado not in estados_validos:
+        estado = 'borrador'
+
+    user_posts = Post.objects.filter(author=request.user)
+    filtered_posts = user_posts.filter(type=estado).order_by('-modified_at')
+
+    counts = {
+        'borrador': user_posts.filter(type='borrador').count(),
+        'archivado': user_posts.filter(type='archivado').count(),
+        'publicado': user_posts.filter(type='publicado').count(),
+    }
+
+    return render(request, 'blogs_django/my_posts.html', {
+        'posts': filtered_posts,
+        'estado_actual': estado,
+        'counts': counts,
+    })
+
 def post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
+    if post.type != 'publicado' and post.author != request.user:
+        messages.error(request, "Esta publicación no está disponible públicamente.")
+        return redirect('blogs_django:posts')
     return render(request, 'blogs_django/post.html', {'post': post})
 
 @login_required
@@ -144,5 +181,5 @@ def delete_post(request, post_id):
     if request.method == 'POST':
         post.delete()
         messages.success(request, "Post eliminado correctamente.")
-        return redirect('blogs_django:posts')
+        return redirect('blogs_django:my_posts')
     return redirect('blogs_django:post', post.id)

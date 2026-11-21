@@ -23,10 +23,18 @@ def register(request):
 @login_required
 def profile(request):
     user_profile, _ = Profile.objects.get_or_create(user=request.user)
-    user_posts = request.user.posts.all().order_by('-created_at')
+    user_posts = request.user.posts.all()
+
+    counts = {
+        "total": user_posts.count(),
+        "publicado": user_posts.filter(type="publicado").count(),
+        "borrador": user_posts.filter(type="borrador").count(),
+        "archivado": user_posts.filter(type="archivado").count(),
+    }
+
     return render(request, "accounts/profile.html", {
         "profile": user_profile,
-        "posts": user_posts,
+        "counts": counts,
     })
 
 @login_required

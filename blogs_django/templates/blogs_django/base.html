@@ -37,6 +37,7 @@
                 <a href="{% url 'blogs_django:posts' %}" class="text-gray-300 hover:text-indigo-400 transition-colors">Posts</a>
 
                 {% if user.is_authenticated %}
+					<a href="{% url 'blogs_django:my_posts' %}" class="text-gray-300 hover:text-indigo-400 transition-colors">Mis Posts</a>
                     <a href="{% url 'blogs_django:create_post' %}" class="text-gray-300 hover:text-indigo-400 transition-colors">+ Post</a>
                     {% if user.is_superuser %}
                         <a href="{% url 'blogs_django:create_tag' %}" class="text-amber-400 hover:text-amber-300 transition-colors">+ Tag</a>

@@ -24,7 +24,7 @@
         {% for tag in tags %}
             <div class="p-4 bg-gray-900 border border-gray-800 rounded-xl flex justify-between items-center">
                 <a href="{% url 'blogs_django:tag' tag.id %}" class="text-lg font-medium text-gray-200 hover:text-indigo-400">
-                    #{{ tag.name }} <span class="text-xs text-gray-500">({{ tag.posts.count }})</span>
+                    #{{ tag.name }} <span class="text-xs text-gray-500">({{ tag.published_posts_count }})</span>
                 </a>
                 {% if user.is_superuser %}
                     <div class="flex items-center space-x-2 text-xs">

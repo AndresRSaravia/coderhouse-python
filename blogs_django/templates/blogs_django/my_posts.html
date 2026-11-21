@@ -1,0 +1,67 @@
+{% extends "blogs_django/base.html" %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-indigo-400">Mis Publicaciones</h1>
+        <a href="{% url 'blogs_django:create_post' %}" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors">
+            + Nuevo Post
+        </a>
+    </div>
+
+    <!-- PESTAÑAS DE ESTADO -->
+    <div class="flex space-x-2 border-b border-gray-800 mb-6 pb-3">
+        <a href="?estado=publicado"
+           class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {% if estado_actual == 'publicado' %}bg-indigo-600/20 text-indigo-300 border border-indigo-500/40{% else %}bg-gray-900 text-gray-400 hover:text-gray-200{% endif %}">
+            Publicados ({{ counts.publicado }})
+        </a>
+        <a href="?estado=borrador"
+           class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {% if estado_actual == 'borrador' %}bg-amber-600/20 text-amber-300 border border-amber-500/40{% else %}bg-gray-900 text-gray-400 hover:text-gray-200{% endif %}">
+            Borradores ({{ counts.borrador }})
+        </a>
+        <a href="?estado=archivado"
+           class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {% if estado_actual == 'archivado' %}bg-gray-700/50 text-gray-200 border border-gray-600{% else %}bg-gray-900 text-gray-400 hover:text-gray-200{% endif %}">
+            Archivados ({{ counts.archivado }})
+        </a>
+    </div>
+
+    <!-- LISTADO FILTRADO -->
+    <div class="space-y-4">
+        {% for post in posts %}
+            <article class="p-5 bg-gray-900 border border-gray-800 rounded-xl flex justify-between items-center gap-4">
+                <div>
+                    <a href="{% url 'blogs_django:post' post.id %}" class="text-lg font-bold text-gray-100 hover:text-indigo-400">
+                        {{ post.title }}
+                    </a>
+                    <p class="text-xs text-gray-400 mt-1">
+                        Última modificación: {{ post.modified_at|date:"d/m/Y H:i" }}
+                    </p>
+                    {% if post.tags.all %}
+                        <div class="flex flex-wrap gap-1.5 mt-2">
+                            {% for tag in post.tags.all %}
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800">
+                                    #{{ tag.name }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="flex items-center space-x-2 shrink-0">
+                    <a href="{% url 'blogs_django:edit_post' post.id %}" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg transition-colors">
+                        Editar
+                    </a>
+                    <form action="{% url 'blogs_django:delete_post' post.id %}" method="POST" onsubmit="return confirm('¿Eliminar este post permanentemente?');">
+                        {% csrf_token %}
+                        <button type="submit" class="px-3 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-600/30 text-xs font-medium rounded-lg transition-colors">
+                            Eliminar
+                        </button>
+                    </form>
+                </div>
+            </article>
+        {% empty %}
+            <p class="text-gray-500">No tienes posts en estado "{{ estado_actual }}".</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}
