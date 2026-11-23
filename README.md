@@ -58,7 +58,6 @@ Al usar mi `venv` en Python, tuve dificultades intentando instalar Pillow. Por l
 
 Algunas de las funcionalidades deseadas es tener un sistema de likes (dar/quitar like, ver la lista de usuarios que dieron like, permisos, etcétera) y comentarios a los posteos. Estas no las pude implementar dado que excedían lo requerido en el proyecto y el tiempo que le podía dedicar.
 
-
 ## Sobre el autor
 
 Andrés R. Saravia: Computólogo, Matemático Aplicado y Analista de Datos
